@@ -4,6 +4,10 @@
 
 cassandra:
   enabled: true
+  image:
+    repository: bitnamilegacy/cassandra
+    tag: 5.0.5-debian-12-r7
+    pullPolicy: IfNotPresent
   dbUser:
     user: cassandra
     password: "shared-cassandra-password"
@@ -38,6 +42,10 @@ kafka:
 
 javaApp:
   enabled: false
+  image:
+    repository: ghcr.io/your-org/your-java-app
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
   connections:
     cassandra:
       host: "{{ .Release.Name }}-cassandra"

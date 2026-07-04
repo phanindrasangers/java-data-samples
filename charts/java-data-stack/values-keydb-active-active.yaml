@@ -6,6 +6,10 @@ cassandra:
 
 keydb:
   enabled: true
+  image:
+    repository: bitnamilegacy/keydb
+    tag: 6.3.4-debian-12-r24
+    pullPolicy: IfNotPresent
   architecture: replication
   auth:
     enabled: true
@@ -43,6 +47,10 @@ kafka:
 
 javaApp:
   enabled: false
+  image:
+    repository: ghcr.io/your-org/your-java-app
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
   connections:
     keydb:
       host: "{{ .Release.Name }}-keydb-master"

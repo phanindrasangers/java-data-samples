@@ -6,6 +6,10 @@ global:
 
 cassandra:
   enabled: true
+  image:
+    repository: bitnamilegacy/cassandra
+    tag: 5.0.5-debian-12-r7
+    pullPolicy: IfNotPresent
   dbUser:
     user: cassandra
     password: "replace-with-secret-or-existingSecret"
@@ -40,6 +44,10 @@ cassandra:
 
 keydb:
   enabled: true
+  image:
+    repository: bitnamilegacy/keydb
+    tag: 6.3.4-debian-12-r24
+    pullPolicy: IfNotPresent
   architecture: replication
   auth:
     enabled: true
@@ -73,6 +81,10 @@ keydb:
 
 kafka:
   enabled: true
+  image:
+    repository: bitnamilegacy/kafka
+    tag: 4.0.0-debian-12-r10
+    pullPolicy: IfNotPresent
   listeners:
     client:
       protocol: SASL_PLAINTEXT
@@ -113,6 +125,7 @@ javaApp:
   image:
     repository: ghcr.io/your-org/your-java-app
     tag: "1.0.0"
+    pullPolicy: IfNotPresent
   args:
     - "-d"
     - "prod"
