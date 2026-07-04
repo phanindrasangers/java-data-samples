@@ -2,19 +2,59 @@ grafana:
   image:
     registry: registry.airgap.local
     repository: monitoring/grafana
-    tag: 12.4.5-observability-plugins
+    tag: 12.4.6-observability-plugins
     pullPolicy: IfNotPresent
 
   grafana.ini:
+    paths:
+      plugins: /usr/share/grafana/custom-plugins
     analytics:
       reporting_enabled: false
       check_for_updates: false
       check_for_plugin_updates: false
+      feedback_links_enabled: false
+    snapshots:
+      enabled: false
+      external_enabled: false
+    news:
+      news_feed_enabled: false
     plugins:
       plugin_admin_enabled: false
       plugin_admin_external_manage_enabled: false
+      plugin_catalog_url: ""
+      public_key_retrieval_disabled: true
+      public_key_retrieval_on_startup: false
+      preinstall: ""
+      preinstall_sync: ""
+      preinstall_disabled: true
+      preinstall_auto_update: false
+    grafana_com:
+      url: ""
+      api_url: ""
 
   plugins: []
+
+  env:
+    GF_PATHS_PLUGINS: /usr/share/grafana/custom-plugins
+    GF_INSTALL_PLUGINS: ""
+    GF_ANALYTICS_REPORTING_ENABLED: "false"
+    GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+    GF_ANALYTICS_CHECK_FOR_PLUGIN_UPDATES: "false"
+    GF_ANALYTICS_FEEDBACK_LINKS_ENABLED: "false"
+    GF_SNAPSHOTS_ENABLED: "false"
+    GF_SNAPSHOTS_EXTERNAL_ENABLED: "false"
+    GF_NEWS_NEWS_FEED_ENABLED: "false"
+    GF_PLUGINS_PLUGIN_ADMIN_ENABLED: "false"
+    GF_PLUGINS_PLUGIN_ADMIN_EXTERNAL_MANAGE_ENABLED: "false"
+    GF_PLUGINS_PLUGIN_CATALOG_URL: ""
+    GF_PLUGINS_PUBLIC_KEY_RETRIEVAL_DISABLED: "true"
+    GF_PLUGINS_PUBLIC_KEY_RETRIEVAL_ON_STARTUP: "false"
+    GF_PLUGINS_PREINSTALL: ""
+    GF_PLUGINS_PREINSTALL_SYNC: ""
+    GF_PLUGINS_PREINSTALL_DISABLED: "true"
+    GF_PLUGINS_PREINSTALL_AUTO_UPDATE: "false"
+    GF_GRAFANA_COM_URL: ""
+    GF_GRAFANA_COM_API_URL: ""
 
   additionalDataSources:
     - name: Prometheus

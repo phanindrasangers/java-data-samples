@@ -1,6 +1,8 @@
 # Grafana Observability Plugin Bundle
 
-This directory contains an air-gap-ready plugin bundle for Grafana `12.4.5`.
+This directory contains an air-gap-ready plugin bundle for the custom image tag `12.4.6-observability-plugins`.
+
+The Dockerfile still uses `grafana/grafana:12.4.5` as the base image because an upstream `grafana/grafana:12.4.6` image was not available when this bundle was created. The `12.4.6-observability-plugins` tag is your custom release tag.
 
 Included plugins, matching the four cards you should see in Grafana under `Administration > Plugins and data > Plugins`:
 
@@ -16,15 +18,33 @@ Included plugins, matching the four cards you should see in Grafana under `Admin
 ## Build Image
 
 ```bash
-docker build -t registry.airgap.local/monitoring/grafana:12.4.5-observability-plugins \
+docker build -t registry.airgap.local/monitoring/grafana:12.4.6-observability-plugins \
   observability/grafana-plugins-bundle
 ```
 
 Push it to your private registry:
 
 ```bash
-docker push registry.airgap.local/monitoring/grafana:12.4.5-observability-plugins
+docker push registry.airgap.local/monitoring/grafana:12.4.6-observability-plugins
 ```
+
+## Air-Gapped Runtime Settings
+
+The Dockerfile installs plugins into `/usr/share/grafana/custom-plugins` and sets `GF_PATHS_PLUGINS` to that directory. This avoids kube-prometheus-stack PVC mounts hiding plugins under `/var/lib/grafana/plugins`.
+
+The Dockerfile disables Grafana.com calls that are not useful in an air-gapped cluster:
+
+- update checks
+- plugin update checks
+- plugin catalog URL
+- plugin admin install/update UI
+- plugin preinstall and preinstall auto-update
+- snapshot publishing
+- news feed
+- feedback links
+- plugin public-key retrieval
+
+Do not set `GF_INSTALL_PLUGINS` in Helm, Kubernetes, or the container environment. The plugins are already baked into `/usr/share/grafana/custom-plugins`.
 
 ## Verify Archive
 

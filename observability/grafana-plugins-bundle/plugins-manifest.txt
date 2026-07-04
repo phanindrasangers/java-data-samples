@@ -1,4 +1,6 @@
-Grafana observability plugin bundle for Grafana 12.4.5
+Grafana observability plugin bundle for custom image tag 12.4.6-observability-plugins
+
+Base image used by the Dockerfile: grafana/grafana:12.4.5
 
 This bundle intentionally contains exactly these four Drilldown plugins:
 
@@ -14,6 +16,6 @@ grafana-pyroscope-app
 grafana-exploretraces-app
   Display name: Grafana Traces Drilldown
 
-docker tag grafana:12.4.5-observability-plugins phanindrasangers/grafana:12.4.5-observability-plugins
+docker tag grafana:12.4.6-observability-plugins phanindrasangers/grafana:12.4.6-observability-plugins
 docker login
-docker push phanindrasangers/grafana:12.4.5-observability-plugins
+docker push phanindrasangers/grafana:12.4.6-observability-plugins

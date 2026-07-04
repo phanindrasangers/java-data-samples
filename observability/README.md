@@ -10,7 +10,7 @@ Use this when Grafana is already running from kube-prometheus-stack and you want
 
 ## Files
 
-- `kube-prometheus-stack-grafana-values.yaml`: Grafana 12.4.5 image and Prometheus/Loki/Tempo data sources.
+- `kube-prometheus-stack-grafana-values.yaml`: custom Grafana `12.4.6-observability-plugins` image and Prometheus/Loki/Tempo data sources.
 - `grafana-plugins-bundle/`: air-gap plugin archive and Dockerfile for Grafana Metrics, Logs, Traces, and Profiles plugins.
 - `loki-values-airgap.yaml`: small monolithic Loki install for UAT or small clusters.
 - `tempo-values-airgap.yaml`: small monolithic Tempo install with OTLP receivers.
@@ -23,18 +23,22 @@ Replace every `registry.airgap.local` value with your private registry.
 Build and push the bundled Grafana image before upgrading kube-prometheus-stack:
 
 ```bash
-docker build -t registry.airgap.local/monitoring/grafana:12.4.5-observability-plugins \
+docker build -t registry.airgap.local/monitoring/grafana:12.4.6-observability-plugins \
   observability/grafana-plugins-bundle
 
-docker push registry.airgap.local/monitoring/grafana:12.4.5-observability-plugins
+docker push registry.airgap.local/monitoring/grafana:12.4.6-observability-plugins
 ```
 
-The Dockerfile bakes exactly these Drilldown plugins into `/var/lib/grafana/plugins`:
+The Dockerfile bakes exactly these Drilldown plugins into `/usr/share/grafana/custom-plugins`:
 
 - `grafana-lokiexplore-app`: Grafana Logs Drilldown
 - `grafana-metricsdrilldown-app`: Grafana Metrics Drilldown
 - `grafana-pyroscope-app`: Grafana Profiles Drilldown
 - `grafana-exploretraces-app`: Grafana Traces Drilldown
+
+The image and `kube-prometheus-stack-grafana-values.yaml` also disable Grafana.com update checks, plugin catalog access, plugin preinstall, snapshot publishing, news feed, and feedback links. Keep `grafana.plugins: []` and do not set `GF_INSTALL_PLUGINS` in an air-gapped cluster.
+
+`/usr/share/grafana/custom-plugins` is used instead of `/var/lib/grafana/plugins` because kube-prometheus-stack often mounts Grafana's PVC at `/var/lib/grafana`, which hides plugins baked into that path.
 
 ## Install Order
 
