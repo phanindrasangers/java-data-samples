@@ -85,8 +85,8 @@ kafka:
 javaApp:
   enabled: false
   image:
-    repository: ghcr.io/your-org/your-java-app
-    tag: latest
+    repository: sample-java-app
+    tag: "0.1.0"
     pullPolicy: IfNotPresent
   args:
     - "-d"
@@ -94,7 +94,7 @@ javaApp:
     cassandra:
       host: "{{ .Release.Name }}-cassandra"
       port: "9042"
-      localDatacenter: dc1
+      localDatacenter: datacenter1
       keyspace: app_uat
       username: cassandra
       password: "uat-cassandra-password"
@@ -104,3 +104,4 @@ javaApp:
       password: "uat-keydb-password"
     kafka:
       bootstrapServers: "{{ .Release.Name }}-kafka:9092"
+      topic: demo-events

@@ -87,8 +87,8 @@ javaApp:
   enabled: false
   replicaCount: 1
   image:
-    repository: ghcr.io/your-org/your-java-app
-    tag: latest
+    repository: sample-java-app
+    tag: "0.1.0"
     pullPolicy: IfNotPresent
   imagePullSecrets: []
   command: []
@@ -102,7 +102,7 @@ javaApp:
     cassandra:
       host: "{{ .Release.Name }}-cassandra"
       port: "9042"
-      localDatacenter: dc1
+      localDatacenter: datacenter1
       keyspace: app_uat
       username: cassandra
       password: "change-me-cassandra"
@@ -112,6 +112,7 @@ javaApp:
       password: "change-me-keydb"
     kafka:
       bootstrapServers: "{{ .Release.Name }}-kafka:9092"
+      topic: demo-events
   extraEnv: []
   service:
     enabled: true

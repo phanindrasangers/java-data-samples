@@ -54,6 +54,8 @@ spec:
               value: {{ tpl (toString .Values.javaApp.connections.keydb.port) . | quote }}
             - name: KAFKA_BOOTSTRAP_SERVERS
               value: {{ tpl .Values.javaApp.connections.kafka.bootstrapServers . | quote }}
+            - name: KAFKA_TOPIC
+              value: {{ tpl .Values.javaApp.connections.kafka.topic . | quote }}
             {{- $secretName := default (printf "%s-java-app" (include "java-data-stack.fullname" .)) .Values.javaApp.secret.name }}
             - name: CASSANDRA_USERNAME
               valueFrom:

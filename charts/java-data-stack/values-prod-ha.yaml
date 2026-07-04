@@ -123,8 +123,8 @@ javaApp:
   enabled: false
   replicaCount: 3
   image:
-    repository: ghcr.io/your-org/your-java-app
-    tag: "1.0.0"
+    repository: sample-java-app
+    tag: "0.1.0"
     pullPolicy: IfNotPresent
   args:
     - "-d"
@@ -143,6 +143,7 @@ javaApp:
       password: "replace-with-secret-or-existingSecret"
     kafka:
       bootstrapServers: "{{ .Release.Name }}-kafka:9092"
+      topic: demo-events
   resources:
     requests:
       cpu: 250m

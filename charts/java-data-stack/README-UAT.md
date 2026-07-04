@@ -32,7 +32,14 @@ Expected internal endpoints for release `utp`:
 - KeyDB replica: `utp-keydb-replica:6379`
 - Kafka: `utp-kafka:9092`
 
-## Optional Java App
+## Optional Java Demo App
+
+Load the included sample app image before enabling it on kind:
+
+```bash
+cat ./charts/java-data-stack/images/sample-java-app-0.1.0.tar.gz.part-* | gunzip | docker load
+kind load docker-image sample-java-app:0.1.0 --name kind
+```
 
 ```bash
 helm upgrade --install utp ./charts/java-data-stack \
@@ -41,8 +48,16 @@ helm upgrade --install utp ./charts/java-data-stack \
   -f ./charts/java-data-stack/values.yaml \
   -f ./charts/java-data-stack/values-uat.yaml \
   --set javaApp.enabled=true \
-  --set javaApp.image.repository=ghcr.io/your-org/your-java-app \
-  --set javaApp.image.tag=1.0.0
+  --timeout 10m \
+  --wait
 ```
 
-`javaApp.args` defaults to `["-d"]`. This is passed to the Java container, not to Helm. Remove it if your application does not support a `-d` command-line flag.
+`javaApp.args` defaults to `["-d"]`. This is passed to the Java container, not to Helm. For the included app, `-d` runs the demo flow against Cassandra, KeyDB, and Kafka during startup.
+
+Check the app:
+
+```bash
+kubectl logs deploy/utp-java-data-stack-java-app -n utp
+kubectl port-forward svc/utp-java-data-stack-java-app -n utp 18080:8080
+curl http://127.0.0.1:18080/last
+```

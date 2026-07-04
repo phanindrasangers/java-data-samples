@@ -14,6 +14,8 @@ Review and replace:
 
 For production, prefer existing Kubernetes Secrets instead of inline passwords in values files.
 
+The included `sample-java-app` image is useful for deployment verification and UAT. For production, build it into your approved registry if you want a smoke-test app, or replace `javaApp.image.repository` and `javaApp.image.tag` with your real service image.
+
 ## Install
 
 ```bash

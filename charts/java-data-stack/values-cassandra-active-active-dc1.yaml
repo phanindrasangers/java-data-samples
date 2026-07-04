@@ -43,8 +43,8 @@ kafka:
 javaApp:
   enabled: false
   image:
-    repository: ghcr.io/your-org/your-java-app
-    tag: "1.0.0"
+    repository: sample-java-app
+    tag: "0.1.0"
     pullPolicy: IfNotPresent
   connections:
     cassandra:

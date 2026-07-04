@@ -43,11 +43,30 @@ Internal endpoints for release `utp`:
 - KeyDB: `utp-keydb-master:6379`
 - Kafka: `utp-kafka:9092`
 
-## Optional Java App
+## Optional Java Demo App
 
-No Java source code is included. The chart only provides an optional Deployment that can run your existing image and inject connection settings.
+This repository includes a sample Spring Boot application in `sample-java-app/`. It consumes all three services:
 
-The `-d` entry in `javaApp.args` is not a Helm option. It is only a default command-line argument passed to your Java container. Keep it only if your Java application supports a `-d` flag, for example to select debug/deploy/demo mode. Remove or replace it if your app does not use that flag.
+- Cassandra: creates/verifies a keyspace and table, then inserts and reads an event.
+- KeyDB: writes and reads a demo key.
+- Kafka: creates the demo topic when needed, produces a message, then consumes it back.
+
+The `-d` entry in `javaApp.args` is not a Helm option. It is a command-line argument passed to the Java container. For the included app, `-d` means demo mode: run the Cassandra, KeyDB, and Kafka connectivity demo on startup.
+
+The prebuilt image is included under `images/` as split tarball parts so each file stays under common Git hosting limits. Load it into a local kind cluster before deploying the app:
+
+```bash
+cat ./charts/java-data-stack/images/sample-java-app-0.1.0.tar.gz.part-* | gunzip | docker load
+kind load docker-image sample-java-app:0.1.0 --name kind
+```
+
+If you change the Java source, rebuild the image and replace the tarball:
+
+```bash
+docker build -t sample-java-app:0.1.0 ./sample-java-app
+rm -f ./charts/java-data-stack/images/sample-java-app-0.1.0.tar.gz.part-*
+docker save sample-java-app:0.1.0 | gzip -9 | split -b 45m -d -a 2 - ./charts/java-data-stack/images/sample-java-app-0.1.0.tar.gz.part-
+```
 
 Enable it at install time:
 
@@ -57,9 +76,7 @@ helm upgrade --install utp ./charts/java-data-stack \
   --create-namespace \
   -f ./charts/java-data-stack/values.yaml \
   -f ./charts/java-data-stack/values-uat.yaml \
-  --set javaApp.enabled=true \
-  --set javaApp.image.repository=ghcr.io/your-org/your-java-app \
-  --set javaApp.image.tag=1.0.0
+  --set javaApp.enabled=true
 ```
 
 The default Java container args include:
@@ -82,6 +99,7 @@ Your app receives:
 - `KEYDB_PORT`
 - `KEYDB_PASSWORD`
 - `KAFKA_BOOTSTRAP_SERVERS`
+- `KAFKA_TOPIC`
 
 ## Profiles
 
