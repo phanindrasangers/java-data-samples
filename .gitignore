@@ -1,1 +1,13 @@
 /.tokensave
+/tools/
+observability/grafana-image-tar/grafana-12.4.5-observability-plugins.tar.gz.part-00
+observability/grafana-image-tar/grafana-12.4.5-observability-plugins.tar.gz.part-01
+observability/grafana-image-tar/grafana-12.4.5-observability-plugins.tar.gz.part-03
+observability/grafana-image-tar/grafana-12.4.5-observability-plugins.tar.gz.part-04
+observability/grafana-image-tar/grafana-12.4.5-observability-plugins.tar.gz.part-05
+observability/grafana-image-tar/grafana-12.4.5-observability-plugins.tar.gz.part-06
+.gitignore
+observability/grafana-plugins-bundle/grafana-observability-plugins-12.4.5.tar.gz
+.gitignore
+bin/grafana-cli
+bin/grafana

@@ -1,0 +1,19 @@
+Grafana observability plugin bundle for Grafana 12.4.5
+
+This bundle intentionally contains exactly these four Drilldown plugins:
+
+grafana-lokiexplore-app
+  Display name: Grafana Logs Drilldown
+
+grafana-metricsdrilldown-app
+  Display name: Grafana Metrics Drilldown
+
+grafana-pyroscope-app
+  Display name: Grafana Profiles Drilldown
+
+grafana-exploretraces-app
+  Display name: Grafana Traces Drilldown
+
+docker tag grafana:12.4.5-observability-plugins phanindrasangers/grafana:12.4.5-observability-plugins
+docker login
+docker push phanindrasangers/grafana:12.4.5-observability-plugins
