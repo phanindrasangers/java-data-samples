@@ -1,0 +1,9 @@
+Installed {{ .Chart.Name }} as release {{ .Release.Name }}.
+
+Internal endpoints for this release:
+- Cassandra: {{ tpl .Values.javaApp.connections.cassandra.host . }}:{{ .Values.javaApp.connections.cassandra.port }}
+- KeyDB: {{ tpl .Values.javaApp.connections.keydb.host . }}:{{ .Values.javaApp.connections.keydb.port }}
+- Kafka: {{ tpl .Values.javaApp.connections.kafka.bootstrapServers . }}
+
+Deploy:
+  helm upgrade --install {{ .Release.Name }} . -n {{ .Release.Namespace }} --create-namespace -f values.yaml

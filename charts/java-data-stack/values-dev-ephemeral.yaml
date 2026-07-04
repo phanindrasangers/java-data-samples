@@ -1,0 +1,55 @@
+# Fast local/dev profile. No persistent storage.
+
+cassandra:
+  enabled: true
+  dbUser:
+    user: cassandra
+    password: "dev-cassandra-password"
+  cluster:
+    name: dev-cassandra
+    datacenter: dc1
+    seedCount: 1
+  replicaCount: 1
+  persistence:
+    enabled: false
+  initDB:
+    01-keyspace.cql: |
+      CREATE KEYSPACE IF NOT EXISTS app_dev
+      WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
+
+keydb:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: false
+  replica:
+    replicaCount: 0
+
+kafka:
+  enabled: true
+  listeners:
+    client:
+      protocol: PLAINTEXT
+    controller:
+      protocol: PLAINTEXT
+    interbroker:
+      protocol: PLAINTEXT
+  controller:
+    replicaCount: 1
+    controllerOnly: false
+    persistence:
+      enabled: false
+  broker:
+    replicaCount: 0
+
+javaApp:
+  enabled: false
+  connections:
+    cassandra:
+      keyspace: app_dev
+      password: "dev-cassandra-password"
+    keydb:
+      password: ""

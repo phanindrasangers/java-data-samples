@@ -1,0 +1,139 @@
+# Production HA profile for one Kubernetes cluster.
+# Review storageClass, passwords, resources, and Kafka security before use.
+
+global:
+  defaultStorageClass: "fast-retain"
+
+cassandra:
+  enabled: true
+  dbUser:
+    user: cassandra
+    password: "replace-with-secret-or-existingSecret"
+  cluster:
+    name: prod-cassandra
+    datacenter: dc1
+    rack: rack1
+    seedCount: 3
+    endpointSnitch: GossipingPropertyFileSnitch
+  replicaCount: 3
+  podManagementPolicy: Parallel
+  resources:
+    requests:
+      cpu: "2"
+      memory: 4Gi
+    limits:
+      cpu: "4"
+      memory: 8Gi
+  jvm:
+    maxHeapSize: 2G
+    newHeapSize: 800M
+  persistence:
+    enabled: true
+    storageClass: "fast-retain"
+    size: 100Gi
+    commitStorageClass: "fast-retain"
+    commitLogsize: 20Gi
+  initDB:
+    01-keyspace.cql: |
+      CREATE KEYSPACE IF NOT EXISTS app_prod
+      WITH replication = {'class': 'NetworkTopologyStrategy', 'dc1': 3};
+
+keydb:
+  enabled: true
+  architecture: replication
+  auth:
+    enabled: true
+    password: "replace-with-secret-or-existingSecret"
+  master:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: "1"
+        memory: 2Gi
+      limits:
+        cpu: "2"
+        memory: 4Gi
+    persistence:
+      enabled: true
+      storageClass: "fast-retain"
+      size: 50Gi
+  replica:
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: "1"
+        memory: 2Gi
+      limits:
+        cpu: "2"
+        memory: 4Gi
+    persistence:
+      enabled: true
+      storageClass: "fast-retain"
+      size: 50Gi
+
+kafka:
+  enabled: true
+  listeners:
+    client:
+      protocol: SASL_PLAINTEXT
+    controller:
+      protocol: SASL_PLAINTEXT
+    interbroker:
+      protocol: SASL_PLAINTEXT
+  sasl:
+    client:
+      users:
+        - app
+      passwords:
+        - "replace-with-kafka-app-password"
+    interbroker:
+      password: "replace-with-kafka-interbroker-password"
+    controller:
+      password: "replace-with-kafka-controller-password"
+  controller:
+    replicaCount: 3
+    controllerOnly: false
+    resources:
+      requests:
+        cpu: "1"
+        memory: 2Gi
+      limits:
+        cpu: "2"
+        memory: 4Gi
+    persistence:
+      enabled: true
+      storageClass: "fast-retain"
+      size: 100Gi
+  broker:
+    replicaCount: 0
+
+javaApp:
+  enabled: false
+  replicaCount: 3
+  image:
+    repository: ghcr.io/your-org/your-java-app
+    tag: "1.0.0"
+  args:
+    - "-d"
+    - "prod"
+  connections:
+    cassandra:
+      host: "{{ .Release.Name }}-cassandra"
+      port: "9042"
+      localDatacenter: dc1
+      keyspace: app_prod
+      username: cassandra
+      password: "replace-with-secret-or-existingSecret"
+    keydb:
+      host: "{{ .Release.Name }}-keydb-master"
+      port: "6379"
+      password: "replace-with-secret-or-existingSecret"
+    kafka:
+      bootstrapServers: "{{ .Release.Name }}-kafka:9092"
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi

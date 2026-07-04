@@ -1,0 +1,120 @@
+# Default portable values for the umbrella chart.
+# Use values-uat.yaml for a small deployable environment.
+
+global:
+  defaultStorageClass: ""
+  imageRegistry: ""
+  imagePullSecrets: []
+  security:
+    allowInsecureImages: true
+
+cassandra:
+  enabled: true
+  image:
+    repository: bitnamilegacy/cassandra
+  dbUser:
+    user: cassandra
+    password: "change-me-cassandra"
+  cluster:
+    name: utp-cassandra
+    datacenter: dc1
+    rack: rack1
+    seedCount: 1
+  replicaCount: 1
+  persistence:
+    enabled: true
+    size: 8Gi
+    commitLogsize: 2Gi
+  initDB:
+    01-keyspace.cql: |
+      CREATE KEYSPACE IF NOT EXISTS app_uat
+      WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
+
+      CREATE TABLE IF NOT EXISTS app_uat.events (
+        id uuid PRIMARY KEY,
+        event_type text,
+        payload text,
+        created_at timestamp
+      );
+
+keydb:
+  enabled: true
+  image:
+    repository: bitnamilegacy/keydb
+  architecture: replication
+  auth:
+    enabled: true
+    password: "change-me-keydb"
+  master:
+    replicaCount: 1
+    persistence:
+      enabled: true
+      size: 8Gi
+  replica:
+    replicaCount: 1
+    persistence:
+      enabled: true
+      size: 8Gi
+
+kafka:
+  enabled: true
+  image:
+    repository: bitnamilegacy/kafka
+  listeners:
+    client:
+      protocol: PLAINTEXT
+    controller:
+      protocol: PLAINTEXT
+    interbroker:
+      protocol: PLAINTEXT
+  controller:
+    replicaCount: 1
+    controllerOnly: false
+    persistence:
+      enabled: true
+      size: 8Gi
+  broker:
+    replicaCount: 0
+  kraftVersion: 1
+
+javaApp:
+  enabled: false
+  replicaCount: 1
+  image:
+    repository: ghcr.io/your-org/your-java-app
+    tag: latest
+    pullPolicy: IfNotPresent
+  imagePullSecrets: []
+  command: []
+  args:
+    - "-d"
+  podAnnotations: {}
+  secret:
+    create: true
+    name: ""
+  connections:
+    cassandra:
+      host: "{{ .Release.Name }}-cassandra"
+      port: "9042"
+      localDatacenter: dc1
+      keyspace: app_uat
+      username: cassandra
+      password: "change-me-cassandra"
+    keydb:
+      host: "{{ .Release.Name }}-keydb-master"
+      port: "6379"
+      password: "change-me-keydb"
+    kafka:
+      bootstrapServers: "{{ .Release.Name }}-kafka:9092"
+  extraEnv: []
+  service:
+    enabled: true
+    type: ClusterIP
+    port: 8080
+    targetPort: 8080
+  resources: {}
+  livenessProbe: {}
+  readinessProbe: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}

@@ -1,0 +1,17 @@
+{{- if and .Values.javaApp.enabled .Values.javaApp.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "java-data-stack.fullname" . }}-java-app
+  labels:
+    {{- include "java-data-stack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: java-app
+spec:
+  type: {{ .Values.javaApp.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.javaApp.service.port }}
+      targetPort: http
+  selector:
+    {{- include "java-data-stack.selectorLabels" . | nindent 4 }}
+{{- end }}

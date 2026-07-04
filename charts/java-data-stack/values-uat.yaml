@@ -1,0 +1,93 @@
+# UAT profile: small, deployable, and inexpensive.
+# Replace passwords before sharing outside a private environment.
+
+global:
+  defaultStorageClass: ""
+
+cassandra:
+  enabled: true
+  dbUser:
+    user: cassandra
+    password: "uat-cassandra-password"
+  cluster:
+    name: uat-cassandra
+    datacenter: dc1
+    rack: rack1
+    seedCount: 1
+  replicaCount: 1
+  resourcesPreset: small
+  persistence:
+    enabled: true
+    size: 10Gi
+    commitLogsize: 2Gi
+  initDB:
+    01-keyspace.cql: |
+      CREATE KEYSPACE IF NOT EXISTS app_uat
+      WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
+
+      CREATE TABLE IF NOT EXISTS app_uat.events (
+        id uuid PRIMARY KEY,
+        event_type text,
+        payload text,
+        created_at timestamp
+      );
+
+keydb:
+  enabled: true
+  architecture: replication
+  auth:
+    enabled: true
+    password: "uat-keydb-password"
+  master:
+    replicaCount: 1
+    resourcesPreset: small
+    persistence:
+      enabled: true
+      size: 8Gi
+  replica:
+    replicaCount: 1
+    resourcesPreset: small
+    persistence:
+      enabled: true
+      size: 8Gi
+
+kafka:
+  enabled: true
+  listeners:
+    client:
+      protocol: PLAINTEXT
+    controller:
+      protocol: PLAINTEXT
+    interbroker:
+      protocol: PLAINTEXT
+  controller:
+    replicaCount: 1
+    controllerOnly: false
+    resourcesPreset: small
+    persistence:
+      enabled: true
+      size: 10Gi
+  broker:
+    replicaCount: 0
+
+javaApp:
+  enabled: false
+  image:
+    repository: ghcr.io/your-org/your-java-app
+    tag: latest
+  args:
+    - "-d"
+  connections:
+    cassandra:
+      host: "{{ .Release.Name }}-cassandra"
+      port: "9042"
+      localDatacenter: dc1
+      keyspace: app_uat
+      username: cassandra
+      password: "uat-cassandra-password"
+    keydb:
+      host: "{{ .Release.Name }}-keydb-master"
+      port: "6379"
+      password: "uat-keydb-password"
+    kafka:
+      bootstrapServers: "{{ .Release.Name }}-kafka:9092"

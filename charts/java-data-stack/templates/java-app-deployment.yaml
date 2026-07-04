@@ -1,0 +1,100 @@
+{{- if .Values.javaApp.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "java-data-stack.fullname" . }}-java-app
+  labels:
+    {{- include "java-data-stack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: java-app
+spec:
+  replicas: {{ .Values.javaApp.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "java-data-stack.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "java-data-stack.selectorLabels" . | nindent 8 }}
+      {{- with .Values.javaApp.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.javaApp.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: java-app
+          image: "{{ .Values.javaApp.image.repository }}:{{ .Values.javaApp.image.tag }}"
+          imagePullPolicy: {{ .Values.javaApp.image.pullPolicy }}
+          {{- with .Values.javaApp.command }}
+          command:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.javaApp.args }}
+          args:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.javaApp.service.targetPort }}
+          env:
+            - name: CASSANDRA_CONTACT_POINTS
+              value: {{ tpl .Values.javaApp.connections.cassandra.host . | quote }}
+            - name: CASSANDRA_PORT
+              value: {{ tpl (toString .Values.javaApp.connections.cassandra.port) . | quote }}
+            - name: CASSANDRA_LOCAL_DATACENTER
+              value: {{ tpl .Values.javaApp.connections.cassandra.localDatacenter . | quote }}
+            - name: CASSANDRA_KEYSPACE
+              value: {{ tpl .Values.javaApp.connections.cassandra.keyspace . | quote }}
+            - name: KEYDB_HOST
+              value: {{ tpl .Values.javaApp.connections.keydb.host . | quote }}
+            - name: KEYDB_PORT
+              value: {{ tpl (toString .Values.javaApp.connections.keydb.port) . | quote }}
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: {{ tpl .Values.javaApp.connections.kafka.bootstrapServers . | quote }}
+            {{- $secretName := default (printf "%s-java-app" (include "java-data-stack.fullname" .)) .Values.javaApp.secret.name }}
+            - name: CASSANDRA_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: CASSANDRA_USERNAME
+            - name: CASSANDRA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: CASSANDRA_PASSWORD
+            - name: KEYDB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: KEYDB_PASSWORD
+            {{- with .Values.javaApp.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- with .Values.javaApp.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.javaApp.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.javaApp.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.javaApp.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.javaApp.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.javaApp.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

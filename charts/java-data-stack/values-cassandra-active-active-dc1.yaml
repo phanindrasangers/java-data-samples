@@ -1,0 +1,45 @@
+# Cassandra active-active reference for datacenter dc1.
+# Deploy this as one release in the dc1 Kubernetes cluster/namespace.
+# Deploy values-cassandra-active-active-dc2.yaml separately in dc2.
+
+cassandra:
+  enabled: true
+  dbUser:
+    user: cassandra
+    password: "shared-cassandra-password"
+  cluster:
+    name: prod-cassandra
+    datacenter: dc1
+    rack: rack1
+    seedCount: 3
+    endpointSnitch: GossipingPropertyFileSnitch
+    extraSeeds:
+      - cassandra-dc2-seed-0.example.internal
+      - cassandra-dc2-seed-1.example.internal
+      - cassandra-dc2-seed-2.example.internal
+  replicaCount: 3
+  podManagementPolicy: Parallel
+  persistence:
+    enabled: true
+    storageClass: "fast-retain"
+    size: 200Gi
+    commitStorageClass: "fast-retain"
+    commitLogsize: 30Gi
+  initDB:
+    01-keyspace.cql: |
+      CREATE KEYSPACE IF NOT EXISTS app_prod
+      WITH replication = {'class': 'NetworkTopologyStrategy', 'dc1': 3, 'dc2': 3};
+
+keydb:
+  enabled: false
+
+kafka:
+  enabled: false
+
+javaApp:
+  enabled: false
+  connections:
+    cassandra:
+      host: "{{ .Release.Name }}-cassandra"
+      localDatacenter: dc1
+      keyspace: app_prod

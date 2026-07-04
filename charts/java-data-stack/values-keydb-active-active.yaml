@@ -1,0 +1,50 @@
+# Optional KeyDB multi-master / active-replica profile.
+# Use only after testing your application's conflict behavior.
+
+cassandra:
+  enabled: false
+
+keydb:
+  enabled: true
+  architecture: replication
+  auth:
+    enabled: true
+    password: "replace-with-keydb-password"
+  master:
+    replicaCount: 3
+    resources:
+      requests:
+        cpu: "1"
+        memory: 2Gi
+      limits:
+        cpu: "2"
+        memory: 4Gi
+    persistence:
+      enabled: true
+      storageClass: "fast-retain"
+      size: 50Gi
+  replica:
+    replicaCount: 3
+    activeReplica: true
+    resources:
+      requests:
+        cpu: "1"
+        memory: 2Gi
+      limits:
+        cpu: "2"
+        memory: 4Gi
+    persistence:
+      enabled: true
+      storageClass: "fast-retain"
+      size: 50Gi
+
+kafka:
+  enabled: false
+
+javaApp:
+  enabled: false
+  connections:
+    keydb:
+      host: "{{ .Release.Name }}-keydb-master"
+      port: "6379"
+      password: "replace-with-keydb-password"
